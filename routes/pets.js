@@ -21,7 +21,7 @@ module.exports = (app) => {
       })
       .catch((err) => {
         // Handle Errors
-      }) ;
+      });
   });
 
   // SHOW PET
@@ -55,4 +55,11 @@ module.exports = (app) => {
       return res.redirect('/')
     });
   });
+
+  // SEARCH PET
+  app.get('/search', (req, res) => {
+    Pet.find().exec((err, pets) => {
+      res.render('pets-index', { pets: pets })
+    })
+  })
 }
