@@ -17,10 +17,12 @@ module.exports = (app) => {
 
     pet.save()
       .then((pet) => {
-        res.redirect(`/pets/${pet._id}`);
+        res.send({ pet: pet });
       })
       .catch((err) => {
-        // Handle Errors
+        // STATUS OF 400 FOR VALIDATIONS
+        // console.log(err.errors)
+        res.status(400).send(err.errors)
       });
   });
 
@@ -70,6 +72,4 @@ module.exports = (app) => {
         res.render('pets-index', { pets: results.docs, pagesCount: results.pages, currentPage: page })
       })
   })
-
-
 }
