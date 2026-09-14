@@ -24,3 +24,7 @@ Fuzzy and full-text search on multiple criteria
 
 ### Responding to JSON
 Make your project into a full API
+
+### BOOTING UP:
+$ npx nodemon
+navigate to http://localhost:3000/

@@ -24,7 +24,7 @@ const client = new Upload(process.env.S3_BUCKET, {
     aspect: '1:1',
     suffix: '-square'
   }]
-});
+})
 
 // MODELS
 const Pet = require('../models/pet');
@@ -40,19 +40,39 @@ module.exports = (app) => {
   });
 
   // CREATE PET
-  app.post('/pets', (req, res) => {
+  app.post('/pets', upload.single('avatar'), (req, res, next) => {
+    console.log(req.file)
     var pet = new Pet(req.body);
 
-    pet.save()
-      .then((pet) => {
+    pet.save(function (err) {
+      if (req.file) {
+        // Upload the images
+        client.upload(req.file.path, {}, function (err, versions, meta) {
+          // if (err) {
+          //   console.error('S3 upload error:', err);
+          //   console.error('Error message:', err.message);
+          //   console.error('Error stack:', err.stack);
+          //   return res.status(400).send({ err: err.message });
+          // }
+          if (err) { return res.status(400).send({ err: err }) };
+
+
+          // Pop off the -square and -standard and just use the one URL to grab the image
+          versions.forEach(function (image) {
+            var urlArray = image.url.split('-');
+            urlArray.pop();
+            var url = urlArray.join('-');
+            pet.avatarUrl = url;
+            pet.save();
+          });
+
+          res.send({ pet: pet });
+        });
+      } else {
         res.send({ pet: pet });
-      })
-      .catch((err) => {
-        // STATUS OF 400 FOR VALIDATIONS
-        // console.log(err.errors)
-        res.status(400).send(err.errors)
-      });
-  });
+      }
+    })
+  })
 
   // SHOW PET
   app.get('/pets/:id', (req, res) => {
