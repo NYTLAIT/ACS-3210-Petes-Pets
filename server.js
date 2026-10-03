@@ -16,6 +16,43 @@ const app = express();
 // stripe
 app.locals.PUBLIC_STRIPE_API_KEY = process.env.PUBLIC_STRIPE_API_KEY
 
+// require mailgun dependencies
+const nodemailer = require('nodemailer')
+const mg = require('nodemailer-mailgun-transport')
+
+// auth with our mailgun API key and domain
+const auth = {
+  auth: {
+    api_key: process.env.MAILGUN_API_KEY,
+    domain: process.env.EMAIL_DOMAIN
+  }
+}
+
+// create a mailer
+const nodemailerMailgun = nodemailer.createTransport(mg(auth))
+
+// SEND EMAIL
+const user = {
+  email: 'danicachastine.torres@students.dominican.edu',
+  name: 'Danica',
+  age: '20'
+};
+
+nodemailerMailgun.sendMail({
+  from: 'no-reply@example.com',
+  to: user.email, // An array if you have multiple recipients.
+  subject: 'Hey you, awesome!',
+  template: {
+    name: 'email.handlebars',
+    engine: 'handlebars',
+    context: user
+  }
+}).then(info => {
+  console.log('Response: ' + info);
+}).catch(err => {
+  console.log('Error: ' + err);
+});
+
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/local', {
   useNewUrlParser: true,
